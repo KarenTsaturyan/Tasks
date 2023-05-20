@@ -1,0 +1,17 @@
+{
+  "name": "node",
+  "type":"module",
+  "version": "1.0.0",
+  "main": "app.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^8.0.1",
+    "lodash": "^4.17.21"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
