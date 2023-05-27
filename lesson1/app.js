@@ -15,6 +15,7 @@ for (let i = 0; i < dataLength; i++) {
 console.log(users)
 
 const sortByNames = _.orderBy(users, ['name'], ['asc']);
+console.log("sortByNames")
 
 console.log(sortByNames)
 
