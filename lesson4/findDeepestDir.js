@@ -8,7 +8,7 @@ console.log(nodePath)
 // console.log(nodePath);
 let num = 1;
 let mainDir; 
-// let slash;
+let slash;
 const getFileList = (dirName) => {
     const items = fs.readdirSync(dirName, { withFileTypes: true });
     let fullDirName = dirName;
@@ -20,8 +20,8 @@ const getFileList = (dirName) => {
             getFileList(path.join(fullDirName,item.name))
         }else{
             directoryDepth = fullDirName
-//             directoryDepth.includes('/') ? slash='/' : slash = '\\';
-            let slashCount = directoryDepth.length - directoryDepth.replaceAll(directoryDepth[2], '').length;//slash(directoryDepth[2]
+            directoryDepth.includes('/') ? slash='/' : slash = '\\';
+            let slashCount = directoryDepth.length - directoryDepth.replaceAll(slash, '').length;//slash(directoryDepth[2]
             if(slashCount > 4){
                     // console.log(slashCount);
                     if( slashCount > num){
