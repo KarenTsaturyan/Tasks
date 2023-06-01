@@ -20,16 +20,12 @@ const getFileList = (dirName) => {
             getFileList(path.join(fullDirName,item.name))
         }else{
             directoryDepth = fullDirName
-            directoryDepth.includes('/') ? slash='/' : slash = '\\';
+            directoryDepth.includes("\\") ? slash="\\" : slash = '/';
             let slashCount = directoryDepth.length - directoryDepth.replaceAll(slash, '').length;//slash(directoryDepth[2]
-            if(slashCount > 4){
-                    // console.log(slashCount);
                     if( slashCount > num){
                         num = slashCount
                         mainDir = directoryDepth;
                     }
-
-                }
                 
             }
         }
