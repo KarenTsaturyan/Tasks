@@ -1,14 +1,12 @@
 
-
 import fs from 'fs';
 import path from 'path'
 
 let nodePath =  path.resolve('./node_modules');
-console.log(nodePath)
 // console.log(nodePath);
 let num = 1;
 let mainDir; 
-let slash;
+let slash
 const getFileList = (dirName) => {
     const items = fs.readdirSync(dirName, { withFileTypes: true });
     let fullDirName = dirName;
@@ -18,16 +16,14 @@ const getFileList = (dirName) => {
         if (item.isDirectory()) {
             // console.log(fullDirName);
             getFileList(path.join(fullDirName,item.name))
-        }else{
             directoryDepth = fullDirName
             directoryDepth.includes("\\") ? slash="\\" : slash = '/';
             let slashCount = directoryDepth.length - directoryDepth.replaceAll(slash, '').length;//slash(directoryDepth[2]
                     if( slashCount > num){
                         num = slashCount
-                        mainDir = directoryDepth;
+                        mainDir = path.join(directoryDepth,item.name)//directoryDepth;
                     }
-                
-            }
+        }
         }
         
     };
