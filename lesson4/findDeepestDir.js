@@ -1,5 +1,8 @@
 
 import fs from 'fs';
+import path from 'path'
+
+let nodePath =  path.basename('./node_modules');
 
 let num = 1;
 let mainDir; 
@@ -30,12 +33,12 @@ const getFileList = (dirName) => {
         }
         
     };
-    getFileList('node_modules')
+    getFileList(nodePath)
     // console.log(num);
     // console.log(mainDir);
 function createFile(filePath){
 console.log(filePath);
-    fs.writeFile(`./${filePath}file.txt`, "hello world", err => {
+     fs.writeFile(path.join(`./${filePath}`,'file.txt'), "hello world", err => {
             if (err) {
               console.error(err);
             }
