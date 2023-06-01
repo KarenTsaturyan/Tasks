@@ -1,9 +1,11 @@
 
+
 import fs from 'fs';
 import path from 'path'
 
-let nodePath =  path.basename('./node_modules');
-
+let nodePath =  path.resolve('./node_modules');
+console.log(nodePath)
+// console.log(nodePath);
 let num = 1;
 let mainDir; 
 const getFileList = (dirName) => {
@@ -14,11 +16,10 @@ const getFileList = (dirName) => {
         
         if (item.isDirectory()) {
             // console.log(fullDirName);
-            getFileList(fullDirName+'/'+item.name)
-            // console.log(fullDirName + '/'+item.name +'   after');
+            getFileList(path.join(fullDirName,item.name))
         }else{
-            directoryDepth = fullDirName + '/'//+item.name;
-            let slashCount = directoryDepth.length - directoryDepth.replaceAll('/', '').length;
+            directoryDepth = fullDirName
+            let slashCount = directoryDepth.length - directoryDepth.replaceAll('\\', '').length;
             if(slashCount > 4){
                     // console.log(slashCount);
                     if( slashCount > num){
@@ -27,7 +28,6 @@ const getFileList = (dirName) => {
                     }
 
                 }
-                
                 
             }
         }
@@ -38,7 +38,7 @@ const getFileList = (dirName) => {
     // console.log(mainDir);
 function createFile(filePath){
 console.log(filePath);
-     fs.writeFile(path.join(`./${filePath}`,'file.txt'), "hello world", err => {
+    fs.writeFile(path.join(`${filePath}`,'file.txt'), "hello world", err => {
             if (err) {
               console.error(err);
             }
@@ -47,4 +47,4 @@ console.log(filePath);
           });
 }
 
-createFile(mainDir);// in mainDir directory
+createFile(mainDir);// in mainDir directory(node_modules/axios/lib/platform/browser/classes/)
