@@ -11,53 +11,35 @@ function toTitleCase (str) {
     return strArr.join(' ');
   }
   
-//Transform operations
-const uppercase = new Transform({
-    transform(chunk, encoding, callback) {
-        callback(null, chunk.toString().toUpperCase());//(err, chunk)
-    },
-});
-const lowercase = new Transform({
-    transform(chunk, encoding, callback) {
-        callback(null, chunk.toString().toLowerCase());
-    },
-});
-const reverse = new Transform({
-    transform(chunk, encoding, callback) {
-        // console.log(chunk);
-        callback(null, chunk.toString().split('').reverse().join('').split('\n').reverse().join(''));
-    },
-});
-const transformToTitleCase = new Transform({
-    transform(chunk, encoding, callback) {
-        // console.log(chunk);
-        callback(null, toTitleCase(chunk.toString()));
-    },
-});
-
-function operate(input, output, operation){
-    const readStream= fs.createReadStream(input);
-    const writeStream= fs.createWriteStream(output);
-    let operationName;
-    // names of operations
-        switch(operation){
-            case "uppercase":
-                operationName = uppercase;
-                break;
-            case "lowercase":
-                operationName = lowercase;
-                break;
-            case "reverse":
-                operationName = reverse;
-                break;
-            case 'totitlecase':
-                operationName = transformToTitleCase;
-                break;
-            default:
-                console.log('Invalid operation')
-                process.exit()
-        }
-
+  function operate(input, output, operation){
+      const readStream= fs.createReadStream(input);
+      const writeStream= fs.createWriteStream(output);
+      let operationName;
+      //Transform operations
+    operationName =  new Transform({
+        transform(chunk, encoding, callback) {
+            // console.log(chunk);
+            switch(operation){
+                case "uppercase":
+                    callback(null, chunk.toString().toUpperCase());//(err, chunk)
+                    break;
+                case "lowercase":
+                    callback(null, chunk.toString().toLowerCase());
+                    break;
+                case "reverse":
+                    callback(null, chunk.toString().split('').reverse().join('').split('\n').reverse().join(''));
+                    break;
+                case 'titlecase':
+                    callback(null, toTitleCase(chunk.toString()));
+                    break;
+                default:
+                    console.log('Invalid operation')
+                    process.exit()
+            }
+            
+        },
+    });
+    
         readStream
         .pipe(operationName)
         .pipe(writeStream)
