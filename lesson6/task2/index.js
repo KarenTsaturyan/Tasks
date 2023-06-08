@@ -11,11 +11,10 @@ function CSVParse(dirname){
                     if(file[1] === 'csv'){
                         const writeStream = fs.createWriteStream(`./dir/${file[0]}.json`);
                         fs.createReadStream(dirname + file.join('.'))
-                        // .pipe(operationName)
-                        .pipe(csv())//parsing to obj
-                        // .on('data', (data) => console.log(data))
-                        // .on('data', (data) => arr.push(data))
-                        .pipe(writeStream)
+                        .pipe(csv())//parsing to JSON
+                        .on('data', (data) => arr.push(data))
+                        .on('end', () => fs.writeFileSync(`./dir/${file[0]}.json`, JSON.stringify(arr)))
+                        // .pipe(writeStream)
                     }
                 });
         }else{//worker process
