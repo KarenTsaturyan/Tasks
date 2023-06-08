@@ -43,8 +43,8 @@ function CSVParse(dirname){
         // Receive messages from the master process.
         process.on('message', function(msg) {
             console.log('Worker ' + process.pid + ' received message from master.', msg);
-            let arr = []
             msg.files.forEach(function(filename) {
+              let arr = []
                 let file = filename.split('.')
                 fs.createReadStream(dirname + file.join('.'))
                 .pipe(csv())//parsing to JSON
