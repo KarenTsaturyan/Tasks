@@ -3,6 +3,8 @@ import csv from 'csv-parser';
 import fs from 'fs';
 import cluster from 'cluster';
 
+let csvCount = 0
+let otherFileTypes = 0;
 function CSVParse(dirname){
     if(cluster.isPrimary){//main process
         fs.readdirSync(dirname).forEach(function(filename) {
@@ -13,19 +15,24 @@ function CSVParse(dirname){
                         fs.createReadStream(dirname + file.join('.'))
                         .pipe(csv())//parsing to JSON
                         .on('data', (data) => arr.push(data))
-                        .on('end', () => fs.writeFileSync(`./dir/${file[0]}.json`, JSON.stringify(arr)))
+                        .on('end', () => 
                         // .pipe(writeStream)
-                    }else{
-                        console.log('No csv file');
-                    }
-                });
-        }else{//worker process
-           
+                         fs.writeFileSync(`./dir/${file[0]}.json`, JSON.stringify(arr))
+                         )
+                         csvCount++;
+                        }else{
+                            otherFileTypes++
+                        }
+                    });
+                    console.log('otherFiles = '+otherFileTypes);
+                    console.log("csvCount = "+csvCount);
+            }else{//worker process
+                
+            }
         }
-}
-
-if(process.argv[2] === undefined){
-    console.log('No args given');
-}else{
-        CSVParse(process.argv[2])
-}
+        
+        if(process.argv[2] === undefined){
+            console.log('No args given');
+        }else{
+            CSVParse(process.argv[2])
+        }
