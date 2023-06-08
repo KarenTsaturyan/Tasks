@@ -15,6 +15,8 @@ function CSVParse(dirname){
                         .on('data', (data) => arr.push(data))
                         .on('end', () => fs.writeFileSync(`./dir/${file[0]}.json`, JSON.stringify(arr)))
                         // .pipe(writeStream)
+                    }else{
+                        console.log('No csv file');
                     }
                 });
         }else{//worker process
