@@ -4,7 +4,7 @@ import fs from 'fs';
 import cluster from 'cluster';
 import  os,{ availableParallelism } from 'os'
 
-// subarrays
+
 function sliceIntoSubArr(arr, size){
   let res = [];
   for (let i = 0; i < arr.length; i += size) {
@@ -21,9 +21,11 @@ function CSVParse(dirname){
   if (cluster.isPrimary) {
         let newCsvArr;
         let csvArr = fs.readdirSync(dirname).filter(el=>el.split('.')[1]==='csv')
-        
-        if(availableParallelism()>csvArr.length){
+        let cpusCore = availableParallelism()
+        let arr = []
+        if(cpusCore>csvArr.length){
            newCsvArr = sliceIntoSubArr(csvArr, 1)
+           cpusCore = csvArr.length
         }else{
            newCsvArr = sliceIntoSubArr(csvArr, Math.ceil(csvArr.length/availableParallelism()))
         }
@@ -31,35 +33,32 @@ function CSVParse(dirname){
         console.log('Master ' + process.pid + ' has started.');
       
         // Fork workers.
-        for (let i = 0; i < availableParallelism(); i++) {
+        for (let i = 0; i < cpusCore; i++) {
           let worker = cluster.fork();
 
           // Receive messages from this worker and handle them in the master process.
           worker.on('message', function(msg) {
+
             // Send a message from the master process to the worker.
-            // console.log(msg?.count);
             if(msg.msgFromWorker){
               worker.send({files:newCsvArr[i], msgFromMaster: 'This is from master ' + process.pid + ' to worker ' + worker.pid + '.'});
             }
             if(msg.count){
+              arr.push(msg.count)
               recordsCount += msg.count
             }
-              console.log('Master ' + process.pid + ' received message from worker .', msg.msgFromWorker);
-              console.log(`RecordsCount in all files ${recordsCount}`);            
-          });
+              // console.log('Master ' + process.pid + ' received message from worker .', msg.msgFromWorker);
+              if(arr.length>=csvArr.length)
+                console.log(`\nRecordsCount in all files ${recordsCount}\n`); //I could have just used arr.reduce  
+            });
         }
-
-        
-        // Be notified when worker processes die.
-        cluster.on('death', function(worker) {
-          console.log('Worker ' + worker.pid + ' died.');
-        });
       
       }else {
         console.log('Worker ' + process.pid + ' has started.');
         // Receive messages from the master process.
         process.on('message', function(msg) {
-            // console.log('Worker ' + process.pid + ' received message from master.', msg);
+            console.log('Worker ' + process.pid + ' received message from master.', msg);
+
             msg?.files?.forEach(function(filename) {
                 let arr = [];
                 let file = filename.split('.')
@@ -70,14 +69,13 @@ function CSVParse(dirname){
                   ++csvCount
                 })
                 .on('end', () => {
-                  fs.writeFile(`./dir/${file[0]}.json`, JSON.stringify(arr), (err)=>console.log(err))
+                  fs.writeFile(`./dir/${file[0]}.json`, JSON.stringify(arr), (err)=>console.log(`writeErr=> ${err}`))
                   process.send({count: csvCount})
                 }
                 )
             })
         });
-
-        
+ 
         // Send message to master process.
        process.send({msgFromWorker: 'This is from worker ' + process.pid + '.'})
       }
