@@ -21,6 +21,9 @@ function sliceIntoSubArr(arr:string[], size:number):string[][]{//[[],[],[],...]
 if (isMainThread) {
   const server = http.createServer((req:http.IncomingMessage, res:http.ServerResponse) => {
     const reqUrl:string|null = url.parse(req.url as string).pathname
+    /* <as string> is added here because, unlike TypeScript, JavaScript does not guarantee that the `url.parse()`
+    function will return a valid object with `pathname` property.
+    Hence, we have to inform TypeScript that we know it always have a value.*/
     // console.log(reqUrl.split('/'))
     //Errors
     req.on('error', (err:Error | null) => {
