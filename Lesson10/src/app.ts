@@ -3,10 +3,7 @@ import fs from 'fs'
 import { availableParallelism } from 'os';
 import http, { ServerResponse } from 'http'
 import url from 'url'
-
-type TypeToWorkerMessage = {
-  csvCount:number
-}
+import { TypeError, TypeToWorkerMessage } from './Types';
 
 
 function sliceIntoSubArr(arr:string[], size:number):string[][]{//[[],[],[],...]
@@ -21,12 +18,9 @@ function sliceIntoSubArr(arr:string[], size:number):string[][]{//[[],[],[],...]
 if (isMainThread) {
   const server = http.createServer((req:http.IncomingMessage, res:http.ServerResponse) => {
     const reqUrl:string|null = url.parse(req.url as string).pathname
-    /* <as string> is added here because, unlike TypeScript, JavaScript does not guarantee that the `url.parse()`
-    function will return a valid object with `pathname` property.
-    Hence, we have to inform TypeScript that we know it always have a value.*/
-    // console.log(reqUrl.split('/'))
+    // console.log(reqUrl!.split('/'))
     //Errors
-    req.on('error', (err:Error | null) => {
+    req.on('error', (err:TypeError) => {
       console.error(err);
       // Handle error...
       res.statusCode = 400;
@@ -34,7 +28,7 @@ if (isMainThread) {
       return;
   });
 
-  res.on('error', (err:Error | null) => {
+  res.on('error', (err:TypeError) => {
       console.error(err);
       // Handle error...
   });
@@ -51,7 +45,7 @@ if (isMainThread) {
             body=String(data).trim().split(' ')[0]
             })
             req.on('end',()=>{
-              fs.readdir(`../${body}/`,(err:Error | null, files:string[]) => {
+              fs.readdir(`../${body}/`,(err:TypeError, files:string[]) => {
                 if (err){
                   console.log(err);
                 }else {
@@ -69,7 +63,7 @@ if (isMainThread) {
             body=String(data).trim().split(' ')[0]
           })
           req.on('end', ()=>{
-            fs.readFile(`../${body}/${reqUrl.split('/')[2]}`,(err:Error | null, data:BufferSource) => {
+            fs.readFile(`../${body}/${reqUrl.split('/')[2]}`,(err:TypeError, data:BufferSource) => {
               if (err) throw err;
               // console.log(data.toString());
               res.write(data.toString())
@@ -83,7 +77,7 @@ if (isMainThread) {
     } else if (req.method == "POST") {//POST method
       console.log('POST', reqUrl);
         if (reqUrl == "/exports") {
-          let body = '';
+          let body:string = '';
     
           req.on('data', function (data:BufferSource) {
               body = String(data).trim().split(' ')[0];// first word of raw data
@@ -106,7 +100,7 @@ if (isMainThread) {
       })
       req.on('end',()=>{
         if(reqUrl == `/files/${reqUrl.split('/')[2]}` && reqUrl.split('/')[2].trim() !==''){
-          fs.unlink(`../${body}/${reqUrl.split('/')[2]}`,function(err:Error | null):ServerResponse | void{
+          fs.unlink(`../${body}/${reqUrl.split('/')[2]}`,function(err:TypeError):ServerResponse | void{
             if(err) return console.log(err);
             console.log('file deleted successfully');
             res.write(`${reqUrl.split('/')[2]} deleted successfully\n`);
