@@ -1,5 +1,7 @@
 export type TypeToWorkerMessage = {
-    csvCount:number
+    csvCount:number,
+    writeErr: Error | null
   }
   
  export type TypeError = Error | null
+
