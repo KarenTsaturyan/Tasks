@@ -22,12 +22,12 @@ parentPort?.on('message', msg=>{
             if(err === null){
               parentPort?.postMessage({csvCount:csvCount})
               console.log('Success')
-            }else{console.log(`writeFile-Error=>${err}`)
+            }else{
+              parentPort?.postMessage({writeErr: err})
+              console.log(`writeFile-Error=>${err}`)
           }
           })
         }
         )
     })
 })
-
-
