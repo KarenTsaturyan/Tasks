@@ -5,6 +5,7 @@ import url from 'url'
 import { TypeError, TypeToWorkerMessage } from './Types';
 import parseJSAsync from './helpers/csvParser'
 import { sendResponse } from './helpers/res';
+import { readFunc } from './helpers/readFile';
   
 if (isMainThread) {
     const server = http.createServer((req:http.IncomingMessage, res:http.ServerResponse) => {
@@ -12,7 +13,6 @@ if (isMainThread) {
     //Errors
           req.on('error', (err:TypeError) => {
             console.error(err);
-            // Handle error...
             res.statusCode = 400;
             res.end('400: Bad Request');
             return;
@@ -24,7 +24,10 @@ if (isMainThread) {
           });
 
   if(typeof reqUrl === 'string'){
-      if (reqUrl == "/") sendResponse(res, 'hello');
+      if (reqUrl == "/"){
+        sendResponse(res, 'Hello World');
+        return//solution of [ERR_STREAM_WRITE_AFTER_END]: write after end
+      } 
 
       if (req.method == "GET") {//GET method
             let body:string
@@ -34,49 +37,25 @@ if (isMainThread) {
                     body=String(data).trim().split(' ')[0]
                   })
                   req.on('end',()=>{
-                    fs.readdir(`../${body}/`,(err:TypeError, files:string[]) => {
-                      try{
-                        console.log("\nCurrent directory filenames:");
-                          files.forEach((file:string) => {
-                            res.write(`${file}\n`);
-                            console.log(file);
-                          })
-                          res.end('finished')
-                      }catch(err){
-                          console.log('readdirErr',err);
-                          sendResponse(res, 'directory not found')
-                      }
-                    })
+                    readFunc('dir',`../${body}/`, res)
                   })  
-              }else if(reqUrl == `/files/${reqUrl.split('/')[2]}` && reqUrl.split('/')[2].trim() !==''){
-                req.on('data', function (data:BufferSource) {
+              }else if(reqUrl === `/files/${reqUrl.split('/')[2]}` && reqUrl.split('/')[2].trim() !==''){
+                  req.on('data', function (data:BufferSource) {
                   body=String(data).trim().split(' ')[0]
                 })
                 req.on('end', ()=>{
-                  fs.readFile(`../${body}/${reqUrl.split('/')[2]}`,(err:TypeError, data:BufferSource) => {
-                    if (err){
-                      console.log('readFileError',err);
-                      sendResponse(res, 'Wrong directory or filename')
-                      return
-                    } 
-                    // console.log(data.toString());
-                    sendResponse(res, data.toString())
-                  });
+                  readFunc("file",`../${body}/${reqUrl.split('/')[2]}`, res)
                 })
               }else{
                 sendResponse(res, 'Nothing has been sent')
               }
-
-    }else if (req.method == "POST") {//POST method
+    }else if (req.method == "POST" && reqUrl == "/exports") {//POST method
             console.log('POST', reqUrl);
-              if (reqUrl == "/exports") {
-                let body:string = '';
-          
+                let body:string;
                 req.on('data', function (data:BufferSource) {
                     body = String(data).trim().split(' ')[0];// first word of raw data
                 })
                 req.on("end",()=>{
-                  // console.log(body);
                       parseJSAsync("../data/", body).then(count=>{
                         console.log(`records=>${count}`)
                         sendResponse(res, 'Files have been created')
@@ -85,25 +64,24 @@ if (isMainThread) {
                         sendResponse(res, 'no such a file or directory')
                       });
               });
-              }
-    }else if (req.method == "DELETE") {//DELETE method
-      let body:string;
+    }else if (req.method == "DELETE" && (reqUrl == `/files/${reqUrl.split('/')[2]}` && reqUrl.split('/')[2].trim() !=='')) {//DELETE method
+        let body:string;
         req.on('data', function (data:BufferSource) {
           body=String(data).trim().split(' ')[0]
         })
         req.on('end',()=>{
-            if(reqUrl == `/files/${reqUrl.split('/')[2]}` && reqUrl.split('/')[2].trim() !==''){
               fs.unlink(`../${body}/${reqUrl.split('/')[2]}`,function(err:TypeError):ServerResponse | void{
                 if(err){
-                  // console.log(err);
                   sendResponse(res, 'Wrong directory or filename')
+                  return
                 } 
                   sendResponse(res, `${reqUrl.split('/')[2]} deleted successfully\n`)
               });  
-            }
         })
-    }
+    }else sendResponse(res,'Wrong method or Url');
   }
   })
     server.listen(3000)
   }
+
+
