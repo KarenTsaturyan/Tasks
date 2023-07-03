@@ -14,7 +14,7 @@ export function checkElInArr(array:INewUser[], id:number):Promise<INewUser | und
         const row = array.find(el => el.id == id)
         if (!row) {
             reject({
-                message: 'ID is not good',
+                message: 'Wrong ID',
                 status: 404
             })
         }
