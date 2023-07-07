@@ -7,7 +7,6 @@ export const getNewId = (array:INewUser[]) => {
         return 1
     }
 }
-export const newDate = () => new Date().toString()
 
 export function checkElInArr(array:INewUser[], id:number):Promise<INewUser | undefined> {
     return new Promise((resolve, reject) => {
