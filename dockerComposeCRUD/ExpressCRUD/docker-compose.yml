@@ -1,0 +1,28 @@
+services:
+  app:
+      image: node
+      # build: .
+      depends_on:
+        - db
+      ports: 
+          - 3000:3000
+      environment:
+        APP_PORT: 3000
+      working_dir: /app
+      command: npm run dev # "dev": "nodemon -L ./app.ts",
+        # - npm i && nodemon app.ts (-)-ov greladzevy chi ashxatum
+      volumes:
+        - ./:/app
+  db:
+      image: postgres
+      ports:
+        - 5432:5432
+      environment:
+        POSTGRES_PASSWORD: root
+      volumes:
+        - pgdata:/var/lib/postgresql/data
+
+volumes:
+   pgdata:
+
+

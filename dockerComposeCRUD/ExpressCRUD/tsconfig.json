@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {                        
+    "target": "ES6",                               
+    "module": "CommonJS",                          
+    "outDir": "./dist",                             
+    "rootDir": "./",                             
+    "strict": false,
+    "moduleResolution": "node",
+    "esModuleInterop": true,  
+    //for TypeORM
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false,
+
+    
+    "resolveJsonModule": true   
+  },
+  "exclude":[
+    "node_modules",
+  ]
+}
+
